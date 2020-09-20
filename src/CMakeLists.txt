@@ -4,9 +4,9 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_BINARY_DIR}/../include
 	${CMAKE_CURRENT_BINARY_DIR}/..
-	${NEON_INCLUDE_DIR}
-	${JANSSON_INCLUDE_DIR}
-	${LIBXML2_INCLUDE_DIR}
+	${NEON_INCLUDE_DIRS}
+	${JANSSON_INCLUDE_DIRS}
+	${LIBXML2_INCLUDE_DIRS}
 )
 
 SET(_sourcescc HTTPFetch.cc CoverArt.cc ReleaseInfo.cc ImageList.cc Image.cc
@@ -32,17 +32,18 @@ IF(NOT CMAKE_CROSSCOMPILING)
   EXPORT(TARGETS make-c-interface FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 ENDIF(NOT CMAKE_CROSSCOMPILING)
 
+FILE(GLOB INCFILES *.inc)
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/caa_c.cc ${CMAKE_CURRENT_BINARY_DIR}/caa_c.h ${CMAKE_CURRENT_BINARY_DIR}/../include/coverart/caa_c.h
 	COMMAND make-c-interface ${CMAKE_CURRENT_SOURCE_DIR} cinterface.xml ${CMAKE_CURRENT_BINARY_DIR} caa_c.cc caa_c.h
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/caa_c.h ${CMAKE_CURRENT_BINARY_DIR}/../include/coverart/caa_c.h
-	DEPENDS make-c-interface cinterface.xml *.inc
+	DEPENDS make-c-interface cinterface.xml ${INCFILES}
 )
 
 ADD_CUSTOM_TARGET(src_gen DEPENDS caa_c.h)
 
-ADD_LIBRARY(coverartcc SHARED ${_sourcescc})
-ADD_LIBRARY(coverart SHARED ${_sourcesc})
+ADD_LIBRARY(coverartcc ${_sourcescc})
+ADD_LIBRARY(coverart ${_sourcesc})
 
 SET_TARGET_PROPERTIES(coverartcc PROPERTIES
     VERSION ${coverart_VERSION}
